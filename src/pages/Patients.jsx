@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { api } from '../lib/api';
 // Removed: import { Mail, Phone, User, Loader2 } from 'lucide-react'; 
 
 // Load Tailwind CSS for aesthetic and responsive design
@@ -45,8 +45,8 @@ const App = () => {
       setLoading(true);
       setError(null);
       try {
-        // Use the correct API URL from your server.js output
-        const res = await axios.get('http://localhost:5000/api/patients');
+  // When using Vite proxy, this relative path is proxied to backend
+  const res = await api.get('/api/patients');
         setPatients(res.data);
       } catch (err) {
         console.error("Error fetching patients:", err);
