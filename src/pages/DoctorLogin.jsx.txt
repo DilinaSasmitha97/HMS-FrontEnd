@@ -1,0 +1,42 @@
+import React, { useState } from 'react';
+import Card from '../../components/ui/Card';
+import Input from '../../components/ui/Input';
+import Button from '../../components/ui/Button';
+import { doctorApi } from '../../lib/api';
+import { useDoctorAuth } from '../../store/doctorAuth';
+import { useNavigate } from 'react-router-dom';
+
+export default function DoctorLogin() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const setAuth = useDoctorAuth((s) => s.setAuth);
+  const navigate = useNavigate();
+
+  async function onSubmit(e) {
+    e.preventDefault();
+    setError('');
+    try {
+      setLoading(true);
+      const res = await doctorApi.post('/api/doctors/login', { email, password });
+      setAuth({ token: res.data.token, doctor: res.data.doctor });
+      navigate('/doctor/dashboard');
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Login failed');
+    } finally { setLoading(false); }
+  }
+
+  return (
+    <div className="min-h-[70vh] grid place-items-center">
+      <Card title="Doctor Login" className="w-full max-w-md">
+        <form onSubmit={onSubmit} className="space-y-4">
+          <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <Input label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          <Button type="submit" disabled={loading} className="w-full">{loading ? 'Signing in...' : 'Sign In'}</Button>
+        </form>
+      </Card>
+    </div>
+  );
+}
